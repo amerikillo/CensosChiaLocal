@@ -42,7 +42,7 @@ public class ConectionDB {
     public ConectionDB() {
         //poner los datos apropiados
         this.usuario = "root";//chiapas
-        this.clave = "eve9397";//t0CEY2RGcy
+        this.clave = "";//t0CEY2RGcy
         this.url = "jdbc:mysql://localhost:3306/censos_chia";
         this.driverClassName = "org.gjt.mm.mysql.Driver";
 
