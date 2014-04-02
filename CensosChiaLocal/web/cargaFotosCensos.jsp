@@ -99,10 +99,10 @@
                 <!--button class="btn btn-primary btn-lg btn-block" type="button" onclick="window.location='modificarCensoH.jsp'">Modificar</button-->
             </form>
 
-             <form method="post" class="marco"  action="FileUploadServlet" enctype="multipart/form-data" name="form1"> 
-               <br>
-               <div class="col-lg-2"><a href="indexCapR.jsp">Regresar</a></div>
-                <div class="col-lg-8"><h4>Datos de la Unidad a Censar</h4></div>
+            <form method="post" class="marco"  action="FileUploadServlet" enctype="multipart/form-data" name="form1" id="form1"> 
+                <br>
+                <div class="col-lg-2"><a href="indexCapR.jsp">Regresar</a></div>
+                <div class="col-lg-8"><h4>Datos de la Unidad a Cargar Imagenes</h4></div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="input-group">
@@ -151,9 +151,9 @@
                     </div>
                 </div>
 
-                
 
-            <div class="container">
+
+                <div class="container">
                     <div class="row-fluid">
                         <table class="table">
                             <tbody>
@@ -195,24 +195,71 @@
                                 </tr>
                                 <tr>
 
-                                    <td colspan="2"><button class="btn btn-block btn-primary">CARGAR IMAGENES</button></td>
+                                    <td colspan="2"><a data-toggle="modal" href="#myModal" class="btn btn-block btn-primary" onclick="form1.submit();">CARGAR IMAGENES</a><!--button class="btn btn-block btn-primary" type="submit" onclick="location.href = 'cargaFotosCensos.jsp#myModal'" id="botonCarga">CARGAR IMAGENES</button--></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </form>
-            <br>
-
-
-
         </div>
 
-        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-        <script src="//code.jquery.com/jquery.js"></script>
-        <!-- Include all compiled plugins (below), or include individual files as needed -->
-        <script src="js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="css/MD5.js"></script>
-        <script type="text/javascript" src="js/code_js.js"></script>
+
+
+
+        <!-- 
+             fin Mensaje de Acerca de...
+        -->                            
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Carga de Imagenes</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form name="form_com" method="post" id="form_com">
+                            <img src='imagenes/loading.gif' width='100px' height='100px' align='center' />
+                            Se están subiendo las imágenes, por favor espere...
+                        </form>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div><!-- /.modal -->
     </body>
+
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="//code.jquery.com/jquery.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="css/MD5.js"></script>
+    <script type="text/javascript" src="js/code_js.js"></script>
+    <script>
+                                $(function() {
+                                    $("#message").hide();
+
+                                    function simulate_ajax_call()
+                                    {
+                                        $.ajax({
+                                            url: "/echo/json/",
+                                            success: function() {
+                                                alert("done");
+                                                $(".message").empty().html("done");
+                                                $(".message").delay(1000).fadeOut(500);
+                                            }
+                                        });
+                                    }
+
+                                    $('#botonCarga').click(function() {
+                                        $(".message").fadeIn(500);
+                                        setTimeout(simulate_ajax_call(), 5000);
+                                    });
+                                });
+    </script>
 </html>

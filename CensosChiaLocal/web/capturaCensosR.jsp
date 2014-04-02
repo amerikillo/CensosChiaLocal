@@ -9,15 +9,17 @@
     String id_uni = "";
     session.getId();
     ConectionDB con = new ConectionDB();
+    int ban = 0;
 
     id_uni = (String) sesion.getAttribute("id_uni");
     try {
         con.conectar();
         ResultSet rset = con.consulta("select * from tb_a as a, tb_b as b, tb_c as c, tb_d as d, tb_e as e, tb_f as f, tb_unidades as clave where clave.id_uni=a.id_uni and clave.id_uni=b.id_uni and clave.id_uni=c.id_uni and clave.id_uni=d.id_uni and clave.id_uni=e.id_uni and clave.id_uni=f.id_uni and clave.id_uni = '" + id_uni + "';");
         while (rset.next()) {
+            ban = 1;
+
 %>
-<%
-    DecimalFormatSymbols simbolos = new DecimalFormatSymbols();
+<%    DecimalFormatSymbols simbolos = new DecimalFormatSymbols();
     simbolos.setDecimalSeparator('.');
     simbolos.setGroupingSeparator(',');
     DecimalFormat forma2 = new DecimalFormat("##,###.##", simbolos);
@@ -107,7 +109,7 @@
                     <li class="active"><a href="indexCapR.jsp">Men&uacute;</a></li>
                     <li><a data-toggle="modal" href="#myModal2">Instrucciones</a></li>
                     <li><a data-toggle="modal" href="#myModal">Sistemas</a></li>
-                    <li><a href="indexCapR.jsp">Salir</a></li>
+                    <li><a href="salirCaptura.jsp">Salir</a></li>
                 </ul>
                 <h3 class="text-primary"><a name="top" id="top"></a>Captura de Censos Rurales</h3>
             </div>
@@ -195,9 +197,32 @@
 
                     </td>
                 </tr>
+
                 <tr>
                     <td colspan="7"><div class="panel panel-primary">Porcentaje de Avance =<%=forma2.format((1 - avance) * 100)%> %</div></td>
                 </tr>
+                <%
+                    try {
+                        con.conectar();
+                        try {
+                            int banpr = 0;
+                            ResultSet rsetprueba = con.consulta("select * from tb_prueba where id_uni = '" + id_uni + "' ");
+                            while (rsetprueba.next()) {
+                                banpr = 1;
+                            }
+                            if (banpr == 1) {
+                %>
+                <tr>
+                    <td colspan="7"><div class="alert alert-danger">Censo de Prueba</div></td>
+                </tr>
+                <%
+                            }
+                        } catch (Exception e) {
+                        }
+                        con.cierraConexion();
+                    } catch (Exception e) {
+                    }
+                %>
                 <tr>
                     <td colspan="3"  class="style58">Seleccione Secci&oacute;n
                         <a href="#a"><input name="a" id="btn_aa" data-toggle="tooltip" title="A. DATOS GENERALES" type="button" data-loading-text="Loading..." class="btn btn-primary" value="A" /> </a>
@@ -280,7 +305,7 @@
                         <td width="281" class="style58"><div align="left">C&oacute;digo Postal</div></td>
                         <td width="400"><span class="style49">
 
-                                <label>   <textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                                <label>   <input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="5" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" />
                                     <%//out.print(nombreC);%></label>  
                             </span></td>
                     </tr>
@@ -296,7 +321,10 @@
                         <td>&nbsp;</td>
                         <td class="style58">A.8</td>
                         <td class="style58"><div align="left">Tel&eacute;fono fijo</div></td>
-                        <td class="style58"><textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                        <td class="style58">
+                            <input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="14" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="LP_data();
+                                    anade(this);
+                                    return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" />
                             <%//out.print(nombreC);%></label>  
                         </td>
                     </tr>
@@ -308,7 +336,7 @@
                         <td class="style33">
                             <strong>
                                 <label>
-                                    <textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                                    <input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="14" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="LP_data();anade(this);return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" />
                                     <%//out.print(nombreC);%></label> 
 
                             </strong>
@@ -356,7 +384,8 @@
                         <td class="style58">&nbsp;</td>
                         <td class="style58">A.14</td>
                         <td class="style58">N&ordm; de Modulos</td>
-                        <td> <label><textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                        <td> <label><!--textarea name="<%//=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%//=nombreC%>" onkeypress="return isNumberKey(event);" ></textarea-->
+                                <input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="2" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" />
                                 <%//out.print(nombreC);%></label>    
 
                             </p></td>
@@ -388,7 +417,9 @@
                         <td class="style33">
                             <strong>
                                 <label>
-                                    <textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                                    <input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="14" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="LP_data();
+                                            anade(this);
+                                            return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" />
                                     <%//out.print(nombreC);%>
                                 </label>
                             </strong>
@@ -418,7 +449,7 @@
                         <td class="style58">Poblaci&oacute;n Atendida</td>
                         <td>
                             <label>
-                                <textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                                <input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="6" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" />
                                 <%//out.print(nombreC);%>
                             </label>    
                         </td>
@@ -429,7 +460,7 @@
                         <td class="style33">
                             <strong>
                                 <label>
-                                    <textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);"   ><%=rset.getString(nombreC)%></textarea>
+                                    <input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="3" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" />
                                     <%//out.print(nombreC);%>
                                 </label>
                             </strong>
@@ -446,14 +477,15 @@
                         <td class="style58">N&ordm; de Pasantes</td>
                         <td class="style33"><strong>
                                 <label>
-                                    <textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                                    <input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="3" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" />
                                     <%//out.print(nombreC);%></label>   
 
                             </strong></td>
                         <td class="style58">&nbsp;</td>
                         <td class="style58">A.24</td>
                         <td class="style58">N&ordm; de Enfermeras</td>
-                        <td> <label><textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                        <td> <label>
+                                <input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="3" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" />
                                 <%//out.print(nombreC);%></label>    
 
                         </td>
@@ -546,8 +578,8 @@
                         <td class="style58">&nbsp;</td>
                         <td class="style58">A.29</td>
                         <td class="style58">¿Cu&aacute;ntos Servicios?</td>
-                        <td> <label><textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
-
+                        <td> <label>
+                                <input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="3" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" />
                                 <%//out.print(nombreC);%></label>    
                         </td>
                     </tr>
@@ -625,7 +657,7 @@
                         <td class="style58">&iquest;Cu&aacute;ntas Recetas Promedio por d&iacute;a se expiden?</td>
                         <td>
                             <label>
-                                <textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                                <input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="5" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" />
                                 <%//out.print(nombreC);%>
                             </label>    
                         </td>
@@ -636,7 +668,7 @@
                         <td class="style58">&iquest;Cuántos medicamentos preescribe en promedio por receta?</td>
                         <td>
                             <label>
-                                <textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                                <input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="3" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" />
                                 <%//out.print(nombreC);%>
                             </label>
                         </td>
@@ -656,7 +688,7 @@
                         <td class="style58">¿Cu&aacute;l es el consumo promedio mensual de piezas?</td>
                         <td>
                             <label>
-                                <textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                                <input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="6" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" />
                                 <%//out.print(nombreC);%></label>  
                         </td>
                         <td class="style58">&nbsp;</td>
@@ -664,7 +696,7 @@
                         <td class="style58">N&uacute;mero de Claves Autorizadas para este Centro </td>
                         <td> 
                             <label>
-                                <textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                                <input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="4" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" />
                                 <%//out.print(nombreC);%>
                             </label>
                         </td>
@@ -676,14 +708,32 @@
                         <td class="style58">N&uacute;mero de Claves de Material de Curaci&oacute;n Autorizadas para este Centro</td>
                         <td>
                             <label>
-                                <textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                                <input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="4" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" />
                                 <%//out.print(nombreC);%>
                             </label>  
                         </td>
                         <td class="style58">&nbsp;</td>
                         <td class="style58"><div align="center">B.8</div></td>
                         <td class="style58">&iquest;Cu&aacute;l es el Procedimiento de Reposici&oacute;n de Inventarios?</td>
-                        <td> <label><textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                        <td> <label>
+<!--textarea name="<%//=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%//=nombreC%>" onkeypress="return handleEnter(this, event);" ><%//=rset.getString(nombreC)%></textarea-->
+                                <select class="form-control" name="<%=nombreC = nomCam + (contCam += 1)%>" onkeypress="return handleEnter(this, event);" onchange="" id="<%=nombreC%>">
+                                    <option value="">Seleccione una opción</option>
+
+                                    <option value="CON BASE AL CONSUMO" <% if (rset.getString(nombreC).equals("CON BASE AL CONSUMO")) {
+                                            out.println("selected");
+                                        }%> >CON BASE AL CONSUMO</option>
+                                    <option value="ENTREGA SECRETARIA" <% if (rset.getString(nombreC).equals("ENTREGA SECRETARIA")) {
+                                            out.println("selected");
+                                        }%> >ENTREGA SECRETARÍA</option>
+                                    <option value="POR REQUERIMIENTO" <% if (rset.getString(nombreC).equals("POR REQUERIMIENTO")) {
+                                            out.println("selected");
+                                        }%> >POR REQUERIMIENTO</option>
+                                    <option value="LAS BRIGADAS HACEN EL REQUERIMIENTO" <% if (rset.getString(nombreC).equals("LAS BRIGADAS HACEN EL REQUERIMIENTO")) {
+                                            out.println("selected");
+                                        }%> >LAS BRIGADAS HACEN EL REQUERIMIENTO</option>
+                                </select>
+                                <textarea name="<%//=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%//=nombreC%>" readonly="readonly" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
                                 <%//out.print(nombreC);%></label></td>
                     </tr>
                     <tr>
@@ -691,8 +741,26 @@
                         <td class="style58">¿Qui&eacute;n surte a esta Unidad de Atenci&oacute;n?</td>
                         <td>
                             <label>
-                                <textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                                <!--textarea name="<%//=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%//=nombreC%>" onkeypress="return handleEnter(this, event);" ><%//=rset.getString(nombreC)%></textarea-->
+                                <select class="form-control" name="<%=nombreC = nomCam + (contCam += 1)%>" onkeypress="return handleEnter(this, event);" id="<%=nombreC%>">
+                                    <option value="">Seleccione una opción</option>
+
+                                    <option value="ALMACEN JURIDICCIONAL - SSCH" <% if (rset.getString(nombreC).equals("ALMACEN JURIDICCIONAL - SSCH")) {
+                                            out.println("selected");
+                                        }%> >ALMACEN JURIDICCIONAL - SSCH</option>
+                                    <option value="DALTEM" <% if (rset.getString(nombreC).equals("DALTEM")) {
+                                            out.println("selected");
+                                        }%> >DALTEM</option>
+                                    <option value="DISUR" <% if (rset.getString(nombreC).equals("DISUR")) {
+                                            out.println("selected");
+                                        }%> >DISUR</option>
+                                        <option value="NADRO" <% if (rset.getString(nombreC).equals("NADRO")) {
+                                            out.println("selected");
+                                        }%> >NADRO</option>
+
+                                </select>
                                 <%//out.print(nombreC);%>
+                                <textarea name="<%//=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%//=nombreC%>" readonly="readonly" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
                             </label>  
                         </td>
                         <td class="style58">&nbsp;</td>
@@ -700,9 +768,40 @@
                         <td class="style58">¿Con qu&eacute; frecuencia? </td>
                         <td>
                             <label>
-                                <textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
-                                
+                                <!--textarea name="<%//=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%//=nombreC%>" onkeypress="return handleEnter(this, event);" ><%//=rset.getString(nombreC)%></textarea-->
+                                <select class="form-control" name="<%=nombreC = nomCam + (contCam += 1)%>" onkeypress="return handleEnter(this, event);" id="<%=nombreC%>">
+                                    <option value="">Seleccione una opción</option>
+
+                                    <option value="SEMANAL" <% if (rset.getString(nombreC).equals("SEMANAL")) {
+                                            out.println("selected");
+                                        }%> >SEMANAL</option>
+                                    <option value="QUINCENAL" <% if (rset.getString(nombreC).equals("QUINCENAL")) {
+                                            out.println("selected");
+                                        }%> >QUINCENAL</option>
+                                    <option value="MENSUAL" <% if (rset.getString(nombreC).equals("MENSUAL")) {
+                                            out.println("selected");
+                                        }%> >MENSUAL</option>
+                                    <option value="CADA 2 MESES" <% if (rset.getString(nombreC).equals("CADA 2 MESES")) {
+                                            out.println("selected");
+                                        }%> >CADA 2 MESES</option>
+                                    <option value="CADA 3 MESES" <% if (rset.getString(nombreC).equals("CADA 3 MESES")) {
+                                            out.println("selected");
+                                        }%> >CADA 3 MESES</option>
+                                    <option value="DE 4 A 6 MESES" <% if (rset.getString(nombreC).equals("DE 4 A 6 MESES")) {
+                                            out.println("selected");
+                                        }%> >DE 4 A 6 MESES</option>
+                                    <option value="DE 6 A 8 MESES" <% if (rset.getString(nombreC).equals("DE 6 A 8 MESES")) {
+                                            out.println("selected");
+                                        }%> >DE 6 A 8 MESES</option>
+                                    <option value="DE 8 MESES A UN AÑO" <% if (rset.getString(nombreC).equals("DE 8 MESES A UN AÑO")) {
+                                            out.println("selected");
+                                        }%> >DE 8 MESES A UN AÑO</option>
+                                    <option value="MAS DEL AÑO" <% if (rset.getString(nombreC).equals("MAS DEL AÑO")) {
+                                            out.println("selected");
+                                        }%> >MAS DEL AÑO</option>
+                                </select>
                                 <%//out.print(nombreC);%>
+                                <textarea name="<%//=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%//=nombreC%>" readonly="readonly" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
                             </label>
                         </td>
                     </tr>
@@ -894,7 +993,9 @@
                         <td>
                             <label>
                                 <textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                                
                                 <%//out.print(nombreC);%>
+                                
                             </label>    
                         </td>
                     </tr>
@@ -903,14 +1004,19 @@
                         <td class="style58">N&ordm;  de Anaqueles</td>
                         <td>
                             <label>
-                                <textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                                <input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="4" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" />
                                 <%//out.print(nombreC);%>
                             </label>  
                         </td>
                         <td class="style58">&nbsp;</td>
                         <td class="style58"><div align="center">C.6</div></td>
                         <td class="style58">Espacio aprox en mts2 de la Farmacia </td>
-                        <td> <label><textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                        <td> 
+                            <label>
+                                <div class="col-sm-6"><input type="text" name="largoFarm" maxlength="4" class="form-control" id="largoFarm" onkeypress="return isNumberKey(event, this);" onkeyup="areaFarm();" value="" /></div>
+                                <div class="col-sm-6"><input type="text" name="anchoFarm" maxlength="4" class="form-control" id="anchoFarm" onkeypress="return isNumberKey(event, this);" onkeyup="areaFarm();" value="" /></div>
+                                <div class="col-sm-12"><input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="4" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" readonly /></div>
+
                                 <%//out.print(nombreC);%>
                             </label>    
                         </td>
@@ -1028,13 +1134,22 @@
                     <tr>
                         <td class="style58"><div align="center">D.3</div></td>
                         <td class="style58">Espacio aprox en mts2 del Almac&eacute;n</td>
-                        <td><label><textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                        <td>
+                            <label>
+                                <label>
+                                <div class="col-sm-6"><input type="text" name="largoAlm" maxlength="4" class="form-control" id="largoAlm" onkeypress="return isNumberKey(event, this);" onkeyup="areaAlm();" value="" /></div>
+                                <div class="col-sm-6"><input type="text" name="anchoAlm" maxlength="4" class="form-control" id="anchoAlm" onkeypress="return isNumberKey(event, this);" onkeyup="areaAlm();" value="" /></div>
+                                <div class="col-sm-12"><input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="8" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" readonly /></div>
+
+                                <%//out.print(nombreC);%>
+                            </label>  
                                 <%//out.print(nombreC);%></label>    
                         </td>
                         <td class="style58">&nbsp;</td>
                         <td class="style58"><div align="center">D.4</div></td>
                         <td class="style58">N&uacute;mero de Anaqueles o Racks en Almacen</td>
-                        <td> <label><textarea name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" class="form-control" id="<%=nombreC%>" onkeypress="return handleEnter(this, event);" ><%=rset.getString(nombreC)%></textarea>
+                        <td> <label>
+                                <input type="text" name="<%=nombreC = nomCam + (contCam += 1)%>" cols="40" maxlength="4" class="form-control" id="<%=nombreC%>" name="<%=nombreC%>" onkeypress="return isNumberKey(event, this);" value="<%=rset.getString(nombreC)%>" />
                                 <%//out.print(nombreC);%></label>    
                         </td>
                     </tr>
@@ -1298,7 +1413,7 @@
                             <div class="panel panel-primary">
                                 <a name="f" id="f"></a>
                                 <!-- Default panel contents -->
-                                <div class="panel-heading">F.DESCRIBA OBSERVACIONES  Y/O COMENTARIOS GEERALES</div>
+                                <div class="panel-heading">F.DESCRIBA OBSERVACIONES  Y/O COMENTARIOS GENERALES</div>
                             </div>
                         </td>
                         <td class="style58">&nbsp;</td>
@@ -1338,11 +1453,19 @@
                 </form>
                 <%
                         }
+
                     } catch (Exception e) {
-                        out.println("Hola");
+                        //out.println("Hola");
                         out.println(e.getMessage());
                     }
+
                     con.cierraConexion();
+                %>
+                <%
+                    if (ban == 0) {
+                        out.println("<script>alert('Se detectó un error al momento de la carga, por favor ingrese nuevamente.')</script>");
+                        out.println("<script>window.location='indexCapR.jsp'</script>");
+                    }
                 %>
 
                 <td colspan="7" class="style47">
@@ -1409,6 +1532,7 @@
     </body>
 </html>
 
+
 <!-- <script type="text/javascript"-->
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="js/bootstrap-modal.js"></script>
@@ -1417,6 +1541,7 @@
 <script language="javascript" src="js/bootstrap-button.js"></script>
 <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 <script src="js/bootstrap-datepicker.js"></script>
+<script src="js/funcionesBasicas.js"></script>
 <script> // este script hace que tabule el enter !!!
 
                                             function handleEnter(field, event) {
@@ -1483,20 +1608,20 @@
         campo = document.getElementById("campo_32").value;
         if (campo === "NO") {
             /*document.getElementById("campo_33").value = "NA";
-            document.getElementById("campo_34").value = "NA";*/
+             document.getElementById("campo_34").value = "NA";*/
             document.getElementById("campo_35").value = "NA";
 
             /*document.getElementById("campo_33").readOnly = true;
-            document.getElementById("campo_34").readOnly = true;*/
+             document.getElementById("campo_34").readOnly = true;*/
             document.getElementById("campo_35").readOnly = true;
         }
         if (campo === "SI") {
             /*document.getElementById("campo_33").value = "";
-            document.getElementById("campo_34").value = "";*/
+             document.getElementById("campo_34").value = "";*/
             document.getElementById("campo_35").value = "";
 
             /*document.getElementById("campo_33").readOnly = false;
-            document.getElementById("campo_34").readOnly = false;*/
+             document.getElementById("campo_34").readOnly = false;*/
             document.getElementById("campo_35").readOnly = false;
         }
     }
@@ -1524,7 +1649,7 @@
 
             document.getElementById("campo_51").readOnly = false;
             document.getElementById("campo_52").readOnly = false;
-            document.getElementById("campo_53").readOnly = false;
+            //document.getElementById("campo_53").readOnly = false;
         }
     }
 
@@ -1549,7 +1674,7 @@
             document.getElementById("campo_60").value = "";
             document.getElementById("campo_61").value = "";
 
-            document.getElementById("campo_59").readOnly = false;
+            //document.getElementById("campo_59").readOnly = false;
             document.getElementById("campo_60").readOnly = false;
             document.getElementById("campo_61").readOnly = false;
         }

@@ -29,6 +29,16 @@ public class FileUploadServlet extends HttpServlet {
         ConectionDB con = new ConectionDB();
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
+        out.println("<html>");
+        out.println("<head>");
+        out.println("</head>");
+        out.println("<body>");
+        out.println("<div style='text-align: center; font-family: Verdana;'>");
+        out.println("<img src='imagenes/loading.gif' width='100px' height='100px' align='center' /><br>");
+        out.println("Se está finalizando la subida");
+        out.println("</div>");
+        out.println("</body>");
+        out.println("</html>");
         String Unidad = "";
         boolean isMultiPart = ServletFileUpload.isMultipartContent(request);
         if (isMultiPart) {
@@ -44,7 +54,7 @@ public class FileUploadServlet extends HttpServlet {
                         byte[] b = new byte[is.available()];
                         is.read(b);
                         String value = new String(b);
-                        response.getWriter().println(fielName + ":" + value + "<br/>");
+                        //response.getWriter().println(fielName + ":" + value + "<br/>");
                         if (fielName.equals("id_uni")) {
                             Unidad = value;
                         }
@@ -58,11 +68,11 @@ public class FileUploadServlet extends HttpServlet {
                             } catch (Exception e) {
 
                             }
-                            response.getWriter().println("file uploaded successfully");
+                            //response.getWriter().println("file uploaded successfully");
                             sesion.setAttribute("ban", "1");
                             //response.sendRedirect("cargaFotosCensos.jsp");
                         } else {
-                            response.getWriter().println("file uploading falied");
+                            //response.getWriter().println("file uploading falied");
                             //response.sendRedirect("cargaFotosCensos.jsp");
                         }
                     }
@@ -70,7 +80,8 @@ public class FileUploadServlet extends HttpServlet {
             } catch (FileUploadException fue) {
                 fue.printStackTrace();
             }
-            out.println("<script>alert('Se cargaron las imagenes correctamente')</script>");
+
+            out.println("<script>alert('Se subieron correctamente las imagenes.')</script>");
             out.println("<script>window.location='indexCapR.jsp'</script>");
             //response.sendRedirect("indexCapR.jsp");
         }

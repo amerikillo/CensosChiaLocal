@@ -24,6 +24,7 @@
     ResultSet rset2 = null;
 
     String id_uni = "", juris = "", muni = "", nombre_gnk = "", tipo = "", hora = "", fecha = "", clues = "";
+    String modi = "";
     int ban = 0;
 
     try {
@@ -38,6 +39,7 @@
 
     try {
         if (request.getParameter("consultar").equals("1")) {
+            System.out.println(request.getParameter("slct_U"));
             rset2 = obj.consulta("select id_uni, juris, muni, nombre_gnk, tipo, clues from tb_unidades where nombre_gnk = '" + request.getParameter("slct_U") + "' ");
             while (rset2.next()) {
                 id_uni = rset2.getString(1);
@@ -121,12 +123,12 @@
                     <br>              
                     <button name="consultar" value="1" class="btn btn-primary btn-lg btn-block" type="submit">Consultar</button>
                 </form>
-                <form method="get" action="SubeInfo"> 
+                <!--form method="get" action="SubeInfo"> 
                     <button name="subir" value="1" class="btn btn-default btn-lg btn-block" type="submit">Subir Información</button>
-                </form>
+                </form-->
             </div>
 
-            <form name ="forma-login" id="forma-login" class="marco" action="CapturaCensos" method="post" >
+            <form name ="forma-login" id="forma-login" class="marco" action="CapturaCensos" method="Post" >
                 <br>
 
                 <div class="col-lg-12"><h4>Datos de la Unidad a Censar</h4></div>
@@ -215,7 +217,20 @@
                                         obj.conectar();
                                         ResultSet rset4 = obj.consulta("select nom_com from usuarios where tipo = 'e'");
                                         while (rset4.next()) {
-                                            out.println("<option>" + rset4.getString(1) + "</option>");
+                                            String modi2 = "";
+                                            ResultSet rset5 = obj.consulta("select e.encuestador from tb_registro_censos e, tb_unidades u where e.id_uni = u.id_uni and u.nombre_gnk = '" + request.getParameter("slct_U") + "' and seccion = 'INICIO' ");
+                                            String encu = " ";
+                                            while (rset5.next()) {
+                                                encu = rset5.getString(1);
+                                                break;
+                                            }
+                                            System.out.println(encu + rset4.getString(1));
+                                            if (encu.equals(rset4.getString(1))) {
+                                                modi = "selected";
+                                                modi2 = "selected";
+                                            }
+                                            System.out.println(modi);
+                                            out.println("<option " + modi2 + " >" + rset4.getString(1) + "</option>");
                                         }
                                         obj.cierraConexion();
                                     } catch (Exception e) {
@@ -225,14 +240,33 @@
                         </div>
                     </div>
                 </div>
+                <div class="checkbox">
+                    <div class="col-lg-4">
+                    </div>
+                    <label>
+                        Censo de Prueba <input type="checkbox" name="prueba" id="prueba"> 
+                    </label>
+                </div>
 
                 <br> 
                 <%
                     if (ban == 1) {
-                %>             
+                        try {
+                            if (modi.equals("selected")) {
+                %>
+                <button name="envio" value = "1" class="btn btn-primary btn-lg btn-block" type="submit" onclick="return valida();">Modificar Censo</button>
+                <%
+                } else {
+                %>
                 <button name="envio" value = "1" class="btn btn-primary btn-lg btn-block" type="submit" onclick="return valida();">Realizar Censo</button>
+                <%
+                    }
+                %>             
+                <!--button name="envio" value = "1" class="btn btn-primary btn-lg btn-block" type="submit" onclick="return valida();">Realizar Censo</button-->
                 <button name="envio" value = "2" class="btn btn-primary btn-lg btn-block" type="submit">Cargar Imagenes</button>
                 <%
+                        } catch (Exception e) {
+                        }
                     }
                 %>
                 <br>
@@ -243,24 +277,53 @@
 
         </div>
 
-        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-        <script src="//code.jquery.com/jquery.js"></script>
-        <!-- Include all compiled plugins (below), or include individual files as needed -->
-        <script src="js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="css/MD5.js"></script>
-        <script type="text/javascript" src="js/code_js.js"></script>
     </body>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="//code.jquery.com/jquery.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="css/MD5.js"></script>
+    <!--script type="text/javascript" src="js/code_js.js"></script-->
 </html>
 <%
-    sesion.invalidate();
+    //sesion.invalidate();
 %>
 
 <script>
-                    function valida() {
-                        if (document.getElementById('encuestador').value === "") {
-                            alert('Seleccione un encuestador');
-                            return false;
-                        }
-                        return true;
-                    }
+                                function valida() {
+                                    if (document.getElementById('encuestador').value === "") {
+                                        alert('Seleccione un encuestador');
+                                        return false;
+                                    }
+                                    return true;
+                                }
+
+
+
+                                function SelectUni(form) {
+    <%
+        try {
+            obj.conectar();
+            ResultSet rset3 = obj.consulta("select DISTINCT juris from tb_unidades order by juris");
+            while (rset3.next()) {
+                out.println("if (form.slct_H.value == '" + rset3.getString(1) + "') {");
+                out.println("var select = document.getElementById('slct_U');");
+                out.println("select.options.length = 0;");
+                ResultSet rset4 = obj.consulta("select nombre_gnk from tb_unidades where juris = '" + rset3.getString(1) + "'");
+                while (rset4.next()) {
+                    out.println("select.options[select.options.length] = new Option('" + rset4.getString(1) + "', '" + rset4.getString(1) + "');");
+                }
+                out.println("}");
+            }
+            obj.cierraConexion();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    %>
+                                    /*if (form.slct_H.value == 'JURISDICCION SANITARIA 1') {
+                                     var select = document.getElementById("slct_U");
+                                     select.options.length = 0;
+                                     select.options[select.options.length] = new Option('CSR CRUZ CHIQUITA', 'CSR CRUZ CHIQUITA');
+                                     }*/
+                                }
 </script>
